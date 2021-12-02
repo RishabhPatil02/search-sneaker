@@ -1,6 +1,7 @@
 import React, { useEffect, useState} from "react";
 import "./App.css";
 import Sneaks from "./Sneaks"
+import axios from 'axios';
 
 const App=()=>{
 
@@ -15,10 +16,27 @@ const App=()=>{
   }, [search]);
 
   const getSneakers=async()=>{
-    const response=await fetch(`https://api.thesneakerdatabase.com/v1/sneakers?limit=100&brand=${search}`);
-    const data= await response.json();
-    setSneakers(data.results);
+    // const response=await fetch(`https://api.thesneakerdatabase.com/v1/sneakers?limit=100&brand=${search}`);
+    // const data= await response.json();
+
+var options = {
+  method: 'GET',
+  url: 'https://the-sneaker-database.p.rapidapi.com/sneakers',
+  params: {limit: '100', brand: `${search}`},
+  headers: {
+    'x-rapidapi-host': 'the-sneaker-database.p.rapidapi.com',
+    'x-rapidapi-key': 'd5bec2be9dmshfbd9e36848bc039p1e31f8jsnf5918fa65e99'
+  }
+};
+
+axios.request(options).then(function (response) {
+	console.log(response.data);
+  setSneakers(response.data.results);
     console.log(sneakers);
+}).catch(function (error) {
+	console.error(error);
+});
+    
   }
 
   const updateSearch = e =>{
@@ -41,15 +59,16 @@ const App=()=>{
       </form>
       <div className="flex-box">
       {sneakers.map(sneaker=>(
-        
+        sneaker.image.thumbnail!=""&&sneaker.shoe!=""&&sneaker.colorway!=""&&sneaker.gender!=""&&sneaker.title!=""?
         <Sneaks 
-        key={sneaker.id}
+         key={sneaker.id}
          title={sneaker.shoe} 
+         link={sneaker.links.goat!=""?sneaker.links.goat:sneaker.links.flightClub!=""?sneaker.links.flightClub:sneaker.links.stockX!=""?sneaker.links.stockX:sneaker.links.stadiumGoods!=""?sneaker.links.stadiumGoods:""}
          color={sneaker.colorway} 
          gender={sneaker.gender} 
-         image={sneaker.media.thumbUrl}
+         image={sneaker.image.thumbnail}
          shoe={sneaker.title}
-        />
+        />:<div></div>
       ))}
       </div>
     </div>
